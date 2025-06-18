@@ -6,6 +6,7 @@ import kotlin.io.path.Path
 
 internal val CONFIGURATION_PATH: Path = Path(System.getProperty("user.home"), ".rsprox")
 public val BINARY_PATH: Path = CONFIGURATION_PATH.resolve("binary")
+public val ERROR_LOGS_PATH: Path = CONFIGURATION_PATH.resolve("logs")
 internal val CLIENTS_DIRECTORY: Path = CONFIGURATION_PATH.resolve("clients")
 internal val TEMP_CLIENTS_DIRECTORY: Path = CLIENTS_DIRECTORY.resolve("temp")
 internal val CACHES_DIRECTORY: Path = CONFIGURATION_PATH.resolve("caches")
@@ -18,8 +19,8 @@ internal val BINARY_CREDENTIALS: Path = BINARY_CREDENTIALS_FOLDER.resolve("binar
 internal val FAKE_CERTIFICATE_FILE: Path = SIGN_KEY_DIRECTORY.resolve("fake-cert.jks")
 internal val JAGEX_ACCOUNTS_FILE: Path = CONFIGURATION_PATH.resolve("jagex-accounts.properties")
 internal val RUNELITE_LAUNCHER_REPO_DIRECTORY: Path = CONFIGURATION_PATH.resolve("runelite-launcher")
-internal const val CURRENT_REVISION: Int = 230
-internal const val LATEST_SUPPORTED_PLUGIN: Int = 230
+internal const val CURRENT_REVISION: Int = 231
+internal const val LATEST_SUPPORTED_PLUGIN: Int = 231
 
 /**
  * Http server port needs to be hard-coded as we modify it in a few RuneLite classes directly.

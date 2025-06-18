@@ -19,6 +19,7 @@ import net.rsprox.protocol.game.outgoing.model.info.npcinfo.extendedinfo.customi
 import net.rsprox.protocol.game.outgoing.model.info.npcinfo.extendedinfo.customisation.ResetCustomisation
 import net.rsprox.protocol.game.outgoing.model.info.shared.extendedinfo.ExactMoveExtendedInfo
 import net.rsprox.protocol.game.outgoing.model.info.shared.extendedinfo.ExtendedInfo
+import net.rsprox.protocol.game.outgoing.model.info.shared.extendedinfo.FaceAngleExtendedInfo
 import net.rsprox.protocol.game.outgoing.model.info.shared.extendedinfo.FacePathingEntityExtendedInfo
 import net.rsprox.protocol.game.outgoing.model.info.shared.extendedinfo.HitExtendedInfo
 import net.rsprox.protocol.game.outgoing.model.info.shared.extendedinfo.SayExtendedInfo
@@ -120,7 +121,7 @@ public class TextNpcInfoTranscriber(
                 coord.level,
                 coord.x,
                 coord.z,
-                angle
+                angle,
             )
         } else {
             identifiedNpc(
@@ -131,7 +132,7 @@ public class TextNpcInfoTranscriber(
                 coord.level,
                 coord.x,
                 coord.z,
-                angle
+                angle,
             )
         }
     }
@@ -385,6 +386,13 @@ public class TextNpcInfoTranscriber(
                         }
                     }
                 }
+                is FaceAngleExtendedInfo -> {
+                    if (filters[PropertyFilter.NPC_FACE_COORD]) {
+                        group("FACE_ANGLE") {
+                            faceAngle(npc, info)
+                        }
+                    }
+                }
                 is NameChangeExtendedInfo -> {
                     if (filters[PropertyFilter.NPC_NAME_CHANGE]) {
                         group("NAME_CHANGE") {
@@ -421,10 +429,16 @@ public class TextNpcInfoTranscriber(
         val baseCoord = activeWorld.getInstancedCoordOrSelf(npc.coord)
         val to1 = CoordGrid(baseCoord.level, baseCoord.x - info.deltaX2, baseCoord.z - info.deltaZ2)
         coordGridProperty(to1.level, to1.x, to1.z, "to1")
-        int("delay1", info.delay1)
+        val subtractDelay1 = settings[Setting.EXACTMOVE_SUBTRACT_FIRST_DELAY]
+        val labelDelay1 = if (subtractDelay1) "delay" else "delay1"
+        int(labelDelay1, info.delay1)
         val to2 = CoordGrid(baseCoord.level, baseCoord.x - info.deltaX1, baseCoord.z - info.deltaZ1)
         coordGridProperty(to2.level, to2.x, to2.z, "to2")
-        int("delay2", info.delay2)
+        if (subtractDelay1) {
+            int("duration", info.delay2 - info.delay1)
+        } else {
+            int("delay2", info.delay2)
+        }
         int("angle", info.direction)
     }
 
@@ -737,6 +751,17 @@ public class TextNpcInfoTranscriber(
             z = 16383
         }
         coordGrid(npc.coord.level, x, z)
+        filteredBoolean("instant", info.instant)
+    }
+
+    private fun Property.faceAngle(
+        npc: Npc,
+        info: FaceAngleExtendedInfo,
+    ) {
+        if (settings[Setting.NPC_EXT_INFO_INDICATOR]) {
+            shortNpc(npc.index)
+        }
+        int("angle", info.angle)
         filteredBoolean("instant", info.instant)
     }
 

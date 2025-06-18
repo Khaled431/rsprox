@@ -71,6 +71,14 @@ public enum class Setting(
         true,
         "Enables official gameval dictionary loaded from the cache. This will override custom user dictionary.",
     ),
+    PREFER_OFFICIAL_DICTIONARY(
+        SettingGroup.LOGGING,
+        SettingCategory.MISC,
+        "Prefer Official Dictionary",
+        true,
+        "Prefers official dictionary results over custom dictionary, if available. " +
+            "Only works if official dictionary is enabled alongside.",
+    ),
     PLAYER_EXT_INFO_INLINE(
         SettingGroup.LOGGING,
         SettingCategory.PLAYER_INFO,
@@ -149,5 +157,13 @@ public enum class Setting(
         "Hide Empty Npc Info",
         true,
         "Hides the NPC info packet entry if there are no logged entries to show.",
+    ),
+    EXACTMOVE_SUBTRACT_FIRST_DELAY(
+        SettingGroup.LOGGING,
+        SettingCategory.MISC,
+        "Exactmove Delays",
+        false,
+        "Subtracts delay1 from delay2 when logging exactmove. " +
+            "The variables will be logged as \"delay\" and \"duration\" afterwards.",
     ),
 }

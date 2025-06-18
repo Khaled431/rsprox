@@ -108,9 +108,13 @@ public class HttpServerHandler(
         return when (val uri = request.uri()) {
             "/${properties.getProperty(ProxyProperty.WORLDLIST_ENDPOINT)}" -> {
                 val response = StringBuilder()
-                val worldListBuffer = worldListProvider.get().encode(ByteBufAllocator.DEFAULT)
+                val worldListBuffer = worldListProvider.get().encodeLocalized(ByteBufAllocator.DEFAULT)
                 val bytes = ByteArray(worldListBuffer.readableBytes())
-                worldListBuffer.gdata(bytes)
+                try {
+                    worldListBuffer.gdata(bytes)
+                } finally {
+                    worldListBuffer.buffer.release()
+                }
                 response.append(String(bytes, Charsets.ISO_8859_1))
             }
 

@@ -174,6 +174,7 @@ public class TextServerPacketTranscriber(
         val angle = npc.angle
         return if (multinpc != null) {
             identifiedMultinpc(
+                cache,
                 finalIndex,
                 npc.id,
                 multinpc.id,
@@ -185,6 +186,7 @@ public class TextServerPacketTranscriber(
             )
         } else {
             identifiedNpc(
+                cache,
                 finalIndex,
                 npc.id,
                 npc.name ?: "null",

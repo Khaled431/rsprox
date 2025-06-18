@@ -94,6 +94,7 @@ public class TextPlayerInfoTranscriber(
         val angle = npc.angle
         return if (multinpc != null) {
             identifiedMultinpc(
+                cache,
                 finalIndex,
                 npc.id,
                 multinpc.id,
@@ -105,6 +106,7 @@ public class TextPlayerInfoTranscriber(
             )
         } else {
             identifiedNpc(
+                cache,
                 finalIndex,
                 npc.id,
                 npc.name ?: "null",

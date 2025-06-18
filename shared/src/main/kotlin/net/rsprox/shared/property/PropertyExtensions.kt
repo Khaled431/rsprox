@@ -1,5 +1,6 @@
 package net.rsprox.shared.property
 
+import net.rsprox.cache.api.Cache
 import net.rsprox.shared.BaseVarType
 import net.rsprox.shared.ScriptVarType
 import net.rsprox.shared.property.filtered.FilteredAnyProperty
@@ -428,6 +429,7 @@ public inline fun <reified T> Property.filteredNamedEnum(
 }
 
 public fun Property.identifiedNpc(
+    cache: Cache,
     index: Int,
     id: Int,
     name: String,
@@ -437,6 +439,7 @@ public fun Property.identifiedNpc(
     angle: Int,
     propertyName: String = "npc",
 ): IdentifiedNpcProperty {
+    NpcSpawnRecorder.record(cache, index, id, name, level, x, z, angle)
     return child(
         IdentifiedNpcProperty(
             propertyName,
@@ -447,11 +450,12 @@ public fun Property.identifiedNpc(
             x,
             z,
             angle
-        ),
+        )
     )
 }
 
 public fun Property.identifiedMultinpc(
+    cache: Cache,
     index: Int,
     baseId: Int,
     multinpc: Int,
@@ -462,6 +466,7 @@ public fun Property.identifiedMultinpc(
     angle: Int,
     propertyName: String = "npc",
 ): IdentifiedMultinpcProperty {
+    NpcSpawnRecorder.record(cache, index, baseId, name, level, x, z, angle)
     return child(
         IdentifiedMultinpcProperty(
             propertyName,
@@ -473,7 +478,7 @@ public fun Property.identifiedMultinpc(
             x,
             z,
             angle
-        ),
+        )
     )
 }
 

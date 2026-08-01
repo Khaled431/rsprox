@@ -64,11 +64,18 @@ public enum class Setting(
         true,
         "Hides varp entries if the old and new values are the same",
     ),
+    INFER_CLIENTSCRIPT_NAMES(
+        SettingGroup.LOGGING,
+        SettingCategory.MISC,
+        "Infer Clientscript Names",
+        true,
+        "Uses cache-specific clientscript names from RSProx Archive in the official dictionary.",
+    ),
     INFER_CLIENTSCRIPT_TYPES(
         SettingGroup.LOGGING,
         SettingCategory.MISC,
         "Infer Clientscript Types",
-        false,
+        true,
         "Uses cache-specific clientscript signatures from RSProx Archive to identify argument types.",
     ),
     COLLAPSE_CLIENTSCRIPT_PARAMS(

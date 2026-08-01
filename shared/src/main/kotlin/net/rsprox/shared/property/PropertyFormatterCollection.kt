@@ -55,7 +55,7 @@ public class PropertyFormatterCollection private constructor(
             cacheProvider: CacheProvider,
         ): PropertyFormatterCollection {
             val settings = settingStore.getActive()
-            val cacheSymbolDictionary = CacheSymbolDictionary(cacheProvider)
+            val cacheSymbolDictionary = CacheSymbolDictionary(cacheProvider, settings)
 
             fun dictionary(): SymbolDictionary =
                 if (settings[Setting.DISABLE_DICTIONARY_NAMES]) {

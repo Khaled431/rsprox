@@ -6,9 +6,12 @@ import net.rsprox.cache.api.type.GameVal
 import net.rsprox.cache.api.type.GameValType
 import net.rsprox.shared.ScriptVarType
 import net.rsprox.shared.property.SymbolDictionary
+import net.rsprox.shared.settings.Setting
+import net.rsprox.shared.settings.SettingSet
 
 public class CacheSymbolDictionary(
     private val cacheProvider: CacheProvider,
+    private val settings: SettingSet,
 ) : SymbolDictionary {
     private var lastLoadedCache: Cache? = null
     private var gameValTypes: Map<GameVal, Map<Int, GameValType>>? = null
@@ -64,7 +67,10 @@ public class CacheSymbolDictionary(
     }
 
     override fun getScriptName(id: Int): String? {
-        return null
+        if (!settings[Setting.INFER_CLIENTSCRIPT_NAMES]) {
+            return null
+        }
+        return lastLoadedCache?.getClientScriptDefinition(id)?.name
     }
 
     @Synchronized

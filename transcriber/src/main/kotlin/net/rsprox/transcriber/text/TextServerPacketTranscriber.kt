@@ -105,6 +105,7 @@ import net.rsprox.protocol.game.outgoing.model.zone.header.UpdateZonePartialFoll
 import net.rsprox.protocol.game.outgoing.model.zone.payload.*
 import net.rsprox.protocol.game.outgoing.model.zone.payload.util.CoordInBuildArea
 import net.rsprox.protocol.reflection.ReflectionCheck
+import net.rsprox.shared.BaseVarType
 import net.rsprox.shared.ScriptVarType
 import net.rsprox.shared.filters.PropertyFilter
 import net.rsprox.shared.filters.PropertyFilterSet
@@ -2405,10 +2406,50 @@ public class TextServerPacketTranscriber(
         return "${quoteChar}$this$quoteChar"
     }
 
+    private fun inferClientScriptTypes(message: RunClientScript): CharArray {
+        if (!settings[Setting.INFER_CLIENTSCRIPT_TYPES]) {
+            return message.types
+        }
+        val definition = cache.getClientScriptDefinition(message.id) ?: return message.types
+        if (definition.arguments.size != message.types.size || message.types.size != message.values.size) {
+            return message.types
+        }
+        val inferred = CharArray(message.types.size)
+        for (index in inferred.indices) {
+            val type = definition.arguments[index].type
+            val char =
+                when (type) {
+                    "intarray" -> 'W'
+                    "stringarray" -> 'X'
+                    else -> CLIENTSCRIPT_TYPES_BY_NAME[type]?.char ?: return message.types
+                }
+            if (!isClientScriptValueCompatible(char, message.values[index])) {
+                return message.types
+            }
+            inferred[index] = char
+        }
+        return inferred
+    }
+
+    private fun isClientScriptValueCompatible(
+        char: Char,
+        value: Any,
+    ): Boolean {
+        if (char == 'W') return value is IntArray
+        if (char == 'X') return value is Array<*> && value.all { element -> element is String }
+        return when (CLIENTSCRIPT_TYPES_BY_CHAR[char]?.baseVarType) {
+            BaseVarType.INTEGER -> value is Int
+            BaseVarType.LONG -> value is Long
+            BaseVarType.STRING -> value is String
+            null -> false
+        }
+    }
+
     override fun runClientScript(message: RunClientScript) {
         if (!filters[PropertyFilter.RUNCLIENTSCRIPT]) return omit()
         root.script("id", message.id)
-        if (message.types.isEmpty() || message.values.isEmpty()) {
+        val parameterTypes = inferClientScriptTypes(message)
+        if (parameterTypes.isEmpty() || message.values.isEmpty()) {
             return
         }
         val quoteChar =
@@ -2419,7 +2460,7 @@ public class TextServerPacketTranscriber(
             }
         if (settings[Setting.COLLAPSE_CLIENTSCRIPT_PARAMS]) {
             val types =
-                message.types.joinToString { char ->
+                parameterTypes.joinToString { char ->
                     when (char) {
                         'X' -> "stringarray"
                         'W' -> "intarray"
@@ -2433,8 +2474,8 @@ public class TextServerPacketTranscriber(
                     }
                 }
             val values = mutableListOf<String>()
-            for (i in message.types.indices) {
-                val char = message.types[i]
+            for (i in parameterTypes.indices) {
+                val char = parameterTypes[i]
                 if (char == 'W') {
                     val array = message.values[i] as IntArray
                     values += "int${array.contentToString()}"
@@ -2478,8 +2519,8 @@ public class TextServerPacketTranscriber(
                 return
             }
             root.list("types") {
-                for (i in message.types.indices) {
-                    when (val char = message.types[i]) {
+                for (i in parameterTypes.indices) {
+                    when (val char = parameterTypes[i]) {
                         'W' -> {
                             any("", "intarray")
                         }
@@ -2501,8 +2542,8 @@ public class TextServerPacketTranscriber(
                 }
             }
             root.list("values") {
-                for (i in message.types.indices) {
-                    val char = message.types[i]
+                for (i in parameterTypes.indices) {
+                    val char = parameterTypes[i]
                     val value = message.values[i]
                     when (char) {
                         'W' -> {
@@ -2541,8 +2582,8 @@ public class TextServerPacketTranscriber(
             return
         }
         root.group("PARAMS") {
-            for (i in message.types.indices) {
-                val char = message.types[i]
+            for (i in parameterTypes.indices) {
+                val char = parameterTypes[i]
                 val value = message.values[i]
                 when (char) {
                     'W' -> {
@@ -3888,6 +3929,10 @@ public class TextServerPacketTranscriber(
     public companion object {
         private val MS_NUMBER_FORMAT: NumberFormat = DecimalFormat("###,###,###ms")
         private val KG_NUMBER_FORMAT: NumberFormat = DecimalFormat("###,###,###kg")
+        private val CLIENTSCRIPT_TYPES_BY_NAME: Map<String, ScriptVarType> =
+            ScriptVarType.entries.associateBy(ScriptVarType::fullName)
+        private val CLIENTSCRIPT_TYPES_BY_CHAR: Map<Char, ScriptVarType> =
+            ScriptVarType.entries.associateBy(ScriptVarType::char)
         public val worldentityInstanceSwCoords: MutableSet<CoordGrid> = mutableSetOf()
     }
 }

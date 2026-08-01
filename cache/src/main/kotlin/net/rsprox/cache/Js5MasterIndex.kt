@@ -8,6 +8,13 @@ public class Js5MasterIndex(
     public val data: ByteArray,
 ) {
     @OptIn(ExperimentalStdlibApi::class)
+    public fun sha256(): String {
+        val messageDigest = MessageDigest.getInstance("SHA-256")
+        messageDigest.update(data)
+        return messageDigest.digest().toHexString()
+    }
+
+    @OptIn(ExperimentalStdlibApi::class)
     public fun shortHash(): String {
         val messageDigest = MessageDigest.getInstance("SHA-256")
         messageDigest.update(data)

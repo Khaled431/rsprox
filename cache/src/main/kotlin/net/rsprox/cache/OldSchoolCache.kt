@@ -4,10 +4,12 @@ import com.github.michaelbull.logging.InlineLogger
 import io.netty.buffer.ByteBuf
 import net.rsprot.buffer.extensions.toJagByteBuf
 import net.rsprox.cache.api.Cache
+import net.rsprox.cache.api.type.ClientScriptDefinition
 import net.rsprox.cache.api.type.GameVal
 import net.rsprox.cache.api.type.GameValType
 import net.rsprox.cache.api.type.NpcType
 import net.rsprox.cache.api.type.VarBitType
+import net.rsprox.cache.clientscript.RSProxArchiveClientScriptIndex
 import net.rsprox.cache.resolver.CacheResolver
 import net.rsprox.cache.type.OldSchoolGameValType
 import net.rsprox.cache.type.OldSchoolNpcType
@@ -26,6 +28,9 @@ public class OldSchoolCache(
     private lateinit var npcs: Map<Int, NpcType>
     private lateinit var gameVals: Map<GameVal, Map<Int, GameValType>>
     private lateinit var varbits: Map<Int, VarBitType>
+    private val clientScripts = RSProxArchiveClientScriptIndex(masterIndex)
+
+    override fun getClientScriptDefinition(id: Int): ClientScriptDefinition? = clientScripts.get(id)
 
     override fun getNpcType(id: Int): NpcType? {
         if (!this::npcs.isInitialized) {

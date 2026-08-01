@@ -1,11 +1,14 @@
 package net.rsprox.cache.api
 
+import net.rsprox.cache.api.type.ClientScriptDefinition
 import net.rsprox.cache.api.type.GameVal
 import net.rsprox.cache.api.type.GameValType
 import net.rsprox.cache.api.type.NpcType
 import net.rsprox.cache.api.type.VarBitType
 
 public interface Cache {
+    public fun getClientScriptDefinition(id: Int): ClientScriptDefinition? = null
+
     public fun getNpcType(id: Int): NpcType?
 
     public fun listNpcTypes(): Collection<NpcType>

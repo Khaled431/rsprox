@@ -177,7 +177,7 @@ public class TextNpcInfoTranscriber(
         return coordGridProperty(coord.level, coord.x, coord.z, name)
     }
 
-    override fun npcInfoV5(message: NpcInfo) {
+    override fun npcInfoV6(message: NpcInfo) {
         npcInfoUpdate(message)
     }
 
@@ -728,6 +728,10 @@ public class TextNpcInfoTranscriber(
                 scriptVarType("id", ScriptVarType.SPOTANIM, spotanim.id.maxUShortToMinusOne())
                 filteredInt("delay", spotanim.delay, 0)
                 filteredInt("height", spotanim.height, 0)
+                val loop = spotanim.loop
+                if (loop != null) {
+                    filteredBoolean("loop", loop)
+                }
             }
         }
     }

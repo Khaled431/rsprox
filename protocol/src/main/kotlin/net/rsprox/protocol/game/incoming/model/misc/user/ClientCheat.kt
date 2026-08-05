@@ -10,7 +10,7 @@ import net.rsprox.protocol.game.incoming.model.GameClientProtCategory
  */
 public class ClientCheat(
     public val command: String,
-    public val unknown: Int? = null,
+    public val autocomplete: Boolean? = null,
 ) : IncomingGameMessage {
     override val category: ClientProtCategory
         get() = GameClientProtCategory.USER_EVENT
@@ -21,14 +21,14 @@ public class ClientCheat(
 
         other as ClientCheat
 
-        if (unknown != other.unknown) return false
+        if (autocomplete != other.autocomplete) return false
         if (command != other.command) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = unknown.hashCode()
+        var result = autocomplete.hashCode()
         result = 31 * result + command.hashCode()
         return result
     }
@@ -36,7 +36,7 @@ public class ClientCheat(
     override fun toString(): String {
         return "ClientCheat(" +
             "command='$command', " +
-            "unknown=$unknown" +
+            "autocomplete=$autocomplete" +
             ")"
     }
 }

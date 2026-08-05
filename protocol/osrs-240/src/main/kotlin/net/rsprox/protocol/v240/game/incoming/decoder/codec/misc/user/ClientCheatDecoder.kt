@@ -17,15 +17,15 @@ public class ClientCheatDecoder : ProxyMessageDecoder<ClientCheat> {
         session: Session,
     ): ClientCheat {
         val command = buffer.gjstr()
-        val unknown =
+        val autocomplete =
             if (!buffer.isReadable) {
                 null
             } else {
-                buffer.g1()
+                buffer.g1() == 1
             }
         return ClientCheat(
             command,
-            unknown,
+            autocomplete,
         )
     }
 }

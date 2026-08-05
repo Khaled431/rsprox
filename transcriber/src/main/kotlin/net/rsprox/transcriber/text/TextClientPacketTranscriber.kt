@@ -648,9 +648,9 @@ public open class TextClientPacketTranscriber(
     override fun clientCheat(message: ClientCheat) {
         if (!filters[PropertyFilter.CLIENT_CHEAT]) return omit()
         root.string("cheat", message.command)
-        val unknown = message.unknown
-        if (unknown != null) {
-            root.int("unknown", unknown)
+        val autocomplete = message.autocomplete
+        if (autocomplete != null) {
+            root.boolean("autocomplete", autocomplete)
         }
     }
 

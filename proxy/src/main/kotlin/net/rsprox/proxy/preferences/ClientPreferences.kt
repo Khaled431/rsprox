@@ -26,6 +26,7 @@ public data class ClientPreferences(
     public val fpsLimit: Int = 25,
     public val drawDistance: Int = 0,
     public val isSfx8Bit: Boolean = false,
+    public val lastJagexAccountPromptRuneDay: Int = 0,
 ) {
     public fun encode(gameRevision: Int): ByteArray {
         val version = versionForGameRevision(gameRevision)
@@ -62,8 +63,11 @@ public data class ClientPreferences(
         if (version >= VERSION_11) {
             buffer.p1(drawDistance)
         }
-        if (version >= VERSION) {
+        if (version >= VERSION_12) {
             buffer.p1(if (isSfx8Bit) 1 else 0)
+        }
+        if (version >= VERSION) {
+            buffer.p4(lastJagexAccountPromptRuneDay)
         }
 
         val bytes = ByteArray(buffer.writerIndex())
@@ -84,18 +88,22 @@ public data class ClientPreferences(
         get() = (brightness * 100.0).toInt()
 
     public companion object {
-        public const val VERSION: Int = 12
+        public const val VERSION: Int = 13
         private const val VERSION_10: Int = 10
         private const val VERSION_11: Int = 11
+        private const val VERSION_12: Int = 12
         private const val VERSION_11_REVISION: Int = 222
         private const val VERSION_12_REVISION: Int = 230
+        private const val VERSION_13_REVISION: Int = 240
         private const val UBYTE_MAX: Int = 0xFF
         private const val PREFERENCES_BUFFER_CAPACITY: Int = 419
 
         // Revisions 222 and 230 added drawDistance and isSfx8Bit respectively.
+        // Revision 240 added last jagex account prompt runeday
         private fun versionForGameRevision(gameRevision: Int): Int =
             when {
-                gameRevision >= VERSION_12_REVISION -> VERSION
+                gameRevision >= VERSION_13_REVISION -> VERSION
+                gameRevision >= VERSION_12_REVISION -> VERSION_12
                 gameRevision >= VERSION_11_REVISION -> VERSION_11
                 else -> VERSION_10
             }
@@ -194,6 +202,12 @@ public data class ClientPreferences(
                 } else {
                     false
                 }
+            val lastJagexAccountPromptRuneDay =
+                if (version > 12) {
+                    buffer.g4()
+                } else {
+                    0
+                }
 
             return ClientPreferences(
                 removeRoof = removeRoof,
@@ -211,6 +225,7 @@ public data class ClientPreferences(
                 fpsLimit = fpsLimit,
                 drawDistance = drawDistance,
                 isSfx8Bit = isSfx8Bit,
+                lastJagexAccountPromptRuneDay = lastJagexAccountPromptRuneDay,
             )
         }
 

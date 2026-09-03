@@ -770,6 +770,7 @@ public class ProxyService(
         try {
             (replaySession.cacheStore as? ReplayDiskCacheStore)?.open()
             val target = initializeReplayHttpServer(port, replaySession)
+            initializeUnixSocketConnection(target.httpPort)?.let(replaySession::attachUnixSocketConnection)
             launchReplayServer(replaySession, port)
             // Clear out existing trackers
             ClientTypeDictionary.remove(port)
@@ -837,12 +838,7 @@ public class ProxyService(
                 sessionId,
             )
         target.load(properties, bootstrapFactory)
-        val establishConnection = properties.getPropertyOrNull(RUNELITE_RSPROX_CONNECTION) == true
-        if (establishConnection) {
-            val connection = initializeUnixSocketListener(target.httpPort)
-            connection.start()
-            connections.addUnixConnection(target.httpPort, connection)
-        }
+        initializeUnixSocketConnection(target.httpPort)
         return target
     }
 
@@ -879,6 +875,17 @@ public class ProxyService(
 
     private fun initializeUnixSocketListener(port: Int): UnixSocketConnection {
         return UnixSocketConnection(port)
+    }
+
+    private fun initializeUnixSocketConnection(port: Int): UnixSocketConnection? {
+        if (properties.getPropertyOrNull(RUNELITE_RSPROX_CONNECTION) != true) {
+            return null
+        }
+        return connections.getUnixConnectionOrNull(port)
+            ?: initializeUnixSocketListener(port).also { connection ->
+                connection.start()
+                connections.addUnixConnection(port, connection)
+            }
     }
 
     public fun launchNativeClient(
